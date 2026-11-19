@@ -45,7 +45,7 @@ The app faithfully implements the attached reference design:
 - **"Read full article" Button**: Opens the original external article URL in the device's default browser using `url_launcher`.
 - **Swipe Navigation (Gmail-Style)**: Powered by `PageView.builder`, users can swipe horizontally left/right to move to the next or previous article in the current feed.
 - **Continuous Reading Pagination**: When the user swipes near the end of the loaded list in the detail pager, the next page is fetched proactively so the reading experience is uninterrupted.
-- **Interactive Actions**: Integrated bookmark toggle and native OS share dialog (`share_plus`).
+- **Interactive Actions**: Integrated bookmark toggle and article link copy to clipboard.
 
 ---
 
