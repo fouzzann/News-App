@@ -1,11 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/constants/app_colors.dart';
 
 /// Production-ready network image component with caching, shimmer placeholder,
-/// error fallback, and cross-platform support (Android, iOS, Web, Desktop).
+/// and error fallback across Android, iOS, Web, and Desktop.
 class AppNetworkImage extends StatelessWidget {
   final String? imageUrl;
   final double? width;
@@ -42,35 +40,19 @@ class AppNetworkImage extends StatelessWidget {
     } else {
       final cleanUrl = imageUrl!.trim();
 
-      // On Web & Desktop, use Image.network to avoid browser CORS and sqflite issues.
-      // On Mobile (Android/iOS), use CachedNetworkImage for persistent disk caching.
-      final isDesktopOrWeb = kIsWeb ||
-          defaultTargetPlatform == TargetPlatform.windows ||
-          defaultTargetPlatform == TargetPlatform.linux ||
-          defaultTargetPlatform == TargetPlatform.macOS;
-
-      if (isDesktopOrWeb) {
-        imageWidget = Image.network(
-          cleanUrl,
-          width: width,
-          height: height,
-          fit: fit,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return _buildShimmerPlaceholder(isDark);
-          },
-          errorBuilder: (context, error, stackTrace) => _buildFallback(isDark),
-        );
-      } else {
-        imageWidget = CachedNetworkImage(
-          imageUrl: cleanUrl,
-          width: width,
-          height: height,
-          fit: fit,
-          placeholder: (context, url) => _buildShimmerPlaceholder(isDark),
-          errorWidget: (context, url, error) => _buildFallback(isDark),
-        );
-      }
+      imageWidget = Image.network(
+        cleanUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return _buildShimmerPlaceholder(isDark);
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return _buildFallback(isDark);
+        },
+      );
     }
 
     if (borderRadius != null) {
