@@ -258,3 +258,5 @@ flutter test
    - Author avatar renders a colored circular avatar with author initials matching the design.
 2. **Swipe Navigation**:
    The detail screen uses a horizontal `PageView.builder` initialized to the tapped article index, enabling users to swipe between news articles like Gmail. When swiping near the boundary of loaded articles, subsequent pages are automatically loaded in the background.
+#   N e w - A p p  
+ 
