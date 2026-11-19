@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/url_launcher_helper.dart';
@@ -39,9 +39,13 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
   }
 
   void _shareArticle() {
-    final title = widget.article.title;
-    final url = widget.article.url;
-    Share.share('$title\n\nRead more at: $url');
+    Clipboard.setData(ClipboardData(text: widget.article.url));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Article link copied to clipboard.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override

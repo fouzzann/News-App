@@ -53,9 +53,6 @@ dependencies:
   # Skeleton loading placeholders
   shimmer: ^3.0.0
 
-  # Share article
-  share_plus: ^10.1.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

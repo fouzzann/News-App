@@ -180,7 +180,6 @@ lib/
 - **`url_launcher: ^6.3.1`**: Launches original article URLs in the system browser.
 - **`intl: ^0.19.0`**: Date formatting for publication timestamps.
 - **`shimmer: ^3.0.0`**: Smooth shimmer effect for loading states.
-- **`share_plus: ^10.1.2`**: Native platform sharing functionality.
 - **`mocktail: ^1.0.4`**: Null-safe mocking library for unit and widget testing.
 - **`flutter_lints: ^6.0.0`**: Official Flutter linting rules.
 
