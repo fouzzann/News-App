@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/url_launcher_helper.dart';
 import '../../data/models/article_model.dart';
+import '../widgets/app_network_image.dart';
 
 /// Single article detail view matching the reference UI design
 class ArticleDetailView extends StatefulWidget {
@@ -73,22 +72,11 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                       // Background Image
                       Hero(
                         tag: 'article_image_${widget.article.id}',
-                        child: widget.article.hasValidImage
-                            ? CachedNetworkImage(
-                                imageUrl: widget.article.imageUrl!,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Shimmer.fromColors(
-                                  baseColor: isDark
-                                      ? AppColors.shimmerBaseDark
-                                      : AppColors.shimmerBaseLight,
-                                  highlightColor: isDark
-                                      ? AppColors.shimmerHighlightDark
-                                      : AppColors.shimmerHighlightLight,
-                                  child: Container(color: Colors.white),
-                                ),
-                                errorWidget: (context, url, error) => _buildImageFallback(),
-                              )
-                            : _buildImageFallback(),
+                        child: AppNetworkImage(
+                          imageUrl: widget.article.imageUrl,
+                          fit: BoxFit.cover,
+                          fallbackIconSize: 64,
+                        ),
                       ),
 
                       // Gradient Overlay for Title readability
@@ -403,19 +391,6 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
         icon: Icon(icon, size: 20, color: color),
         padding: EdgeInsets.zero,
         onPressed: onTap,
-      ),
-    );
-  }
-
-  Widget _buildImageFallback() {
-    return Container(
-      color: const Color(0xFF1E293B),
-      child: const Center(
-        child: Icon(
-          Icons.rocket_launch_rounded,
-          size: 64,
-          color: Colors.white54,
-        ),
       ),
     );
   }

@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/article_model.dart';
+import 'app_network_image.dart';
 
 /// Clean, responsive article card adhering to the reference UI specification
 class ArticleCard extends StatelessWidget {
@@ -179,44 +178,13 @@ class ArticleCard extends StatelessWidget {
 
     return Hero(
       tag: 'article_image_${article.id}',
-      child: ClipRRect(
+      child: AppNetworkImage(
+        imageUrl: article.imageUrl,
+        width: width,
+        height: height,
         borderRadius: effectiveRadius,
-        child: Container(
-          width: width,
-          height: height,
-          color: isDark ? AppColors.surfaceDark : AppColors.shimmerBaseLight,
-          child: article.hasValidImage
-              ? CachedNetworkImage(
-                  imageUrl: article.imageUrl!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: isDark
-                        ? AppColors.shimmerBaseDark
-                        : AppColors.shimmerBaseLight,
-                    highlightColor: isDark
-                        ? AppColors.shimmerHighlightDark
-                        : AppColors.shimmerHighlightLight,
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => _buildImageFallback(isDark),
-                )
-              : _buildImageFallback(isDark),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageFallback(bool isDark) {
-    return Container(
-      color: isDark ? AppColors.searchBarDark : AppColors.searchBarLight,
-      child: Center(
-        child: Icon(
-          Icons.rocket_launch_rounded,
-          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-          size: 32,
-        ),
+        fit: BoxFit.cover,
+        fallbackIconSize: 32,
       ),
     );
   }
