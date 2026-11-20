@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/article_model.dart';
 import 'app_network_image.dart';
+import 'publisher_logo.dart';
 
 /// Clean, responsive article card adhering to the reference UI specification
 class ArticleCard extends StatelessWidget {
@@ -190,27 +191,13 @@ class ArticleCard extends StatelessWidget {
   }
 
   Widget _buildAuthorDateRow(ThemeData theme, bool isDark) {
-    final avatarColor = _generateAvatarColor(article.primaryAuthor);
-
     return Row(
       children: [
-        // Circular Author Avatar
-        Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: avatarColor,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            article.authorInitials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+        // Circular Publisher Brand Logo
+        PublisherLogo(
+          newsSite: article.newsSite,
+          articleUrl: article.url,
+          size: 20,
         ),
         const SizedBox(width: 6),
         // Author Name
@@ -252,17 +239,5 @@ class ArticleCard extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Color _generateAvatarColor(String name) {
-    final colors = [
-      const Color(0xFF3B82F6),
-      const Color(0xFF10B981),
-      const Color(0xFFF59E0B),
-      const Color(0xFF8B5CF6),
-      const Color(0xFFEC4899),
-      const Color(0xFF06B6D4),
-    ];
-    return colors[name.hashCode.abs() % colors.length];
   }
 }

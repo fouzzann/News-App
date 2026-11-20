@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/url_launcher_helper.dart';
 import '../../data/models/article_model.dart';
 import '../widgets/app_network_image.dart';
+import '../widgets/publisher_logo.dart';
 
 /// Single article detail view matching the reference UI design
 class ArticleDetailView extends StatefulWidget {
@@ -37,13 +38,66 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
     );
   }
 
-  void _shareArticle() {
-    Clipboard.setData(ClipboardData(text: widget.article.url));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Article link copied to clipboard.'),
-        duration: Duration(seconds: 2),
+  void _showMoreOptions(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.link_rounded),
+                  title: const Text('Copy Article Link'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Clipboard.setData(ClipboardData(text: widget.article.url));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Article link copied to clipboard.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.open_in_browser_rounded),
+                  title: const Text('Open in Browser'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    UrlLauncherHelper.openUrl(context, widget.article.url);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(_isBookmarked ? Icons.bookmark_remove_rounded : Icons.bookmark_add_rounded),
+                  title: Text(_isBookmarked ? 'Remove from Bookmarks' : 'Save to Bookmarks'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _toggleBookmark();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -191,30 +245,11 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                       // Publisher Info Row
                       Row(
                         children: [
-                          // Publisher / Author Avatar
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              widget.article.authorInitials,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
-                            ),
+                          // Publisher Logo / Brand Badge
+                          PublisherLogo(
+                            newsSite: widget.article.newsSite,
+                            articleUrl: widget.article.url,
+                            size: 44,
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -347,7 +382,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                     icon: Icons.arrow_back_ios_new_rounded,
                     onTap: widget.onBack,
                   ),
-                  // Right actions: Bookmark & Share
+                  // Right actions: Bookmark & More options (3 horizontal dots)
                   Row(
                     children: [
                       _buildGlassActionButton(
@@ -357,8 +392,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                       ),
                       const SizedBox(width: 10),
                       _buildGlassActionButton(
-                        icon: Icons.share,
-                        onTap: _shareArticle, 
+                        icon: Icons.more_horiz_rounded,
+                        onTap: () => _showMoreOptions(context), 
                       ),
                     ],
                   ),
