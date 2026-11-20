@@ -357,8 +357,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                       ),
                       const SizedBox(width: 10),
                       _buildGlassActionButton(
-                        icon: Icons.share_rounded,
-                        onTap: _shareArticle,
+                        icon: Icons.share,
+                        onTap: _shareArticle, 
                       ),
                     ],
                   ),

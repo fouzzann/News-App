@@ -16,22 +16,22 @@ class AppColors {
   static const Color searchBarLight = Color(0xFFF3F4F6);
   static const Color dividerLight = Color(0xFFE5E7EB);
 
-  // Neutral / Background colors (Dark)
-  static const Color backgroundDark = Color(0xFF0F172A);
-  static const Color surfaceDark = Color(0xFF1E293B);
-  static const Color cardDark = Color(0xFF1E293B);
-  static const Color searchBarDark = Color(0xFF334155);
-  static const Color dividerDark = Color(0xFF334155);
+  // Neutral / Background colors (Dark - Pure Black Theme)
+  static const Color backgroundDark = Color(0xFF000000);
+  static const Color surfaceDark = Color(0xFF121212);
+  static const Color cardDark = Color(0xFF181818);
+  static const Color searchBarDark = Color(0xFF1E1E1E);
+  static const Color dividerDark = Color(0xFF2E2E2E);
 
   // Text colors (Light)
   static const Color textPrimaryLight = Color(0xFF111827);
   static const Color textSecondaryLight = Color(0xFF6B7280);
   static const Color textMutedLight = Color(0xFF9CA3AF);
 
-  // Text colors (Dark)
-  static const Color textPrimaryDark = Color(0xFFF9FAFB);
-  static const Color textSecondaryDark = Color(0xFF94A3B8);
-  static const Color textMutedDark = Color(0xFF64748B);
+  // Text colors (Dark - Neutral monochrome)
+  static const Color textPrimaryDark = Color(0xFFFFFFFF);
+  static const Color textSecondaryDark = Color(0xFFA1A1AA);
+  static const Color textMutedDark = Color(0xFF71717A);
 
   // Status colors
   static const Color error = Color(0xFFEF4444);
@@ -42,6 +42,6 @@ class AppColors {
   // Shimmer colors
   static const Color shimmerBaseLight = Color(0xFFE2E8F0);
   static const Color shimmerHighlightLight = Color(0xFFF1F5F9);
-  static const Color shimmerBaseDark = Color(0xFF1E293B);
-  static const Color shimmerHighlightDark = Color(0xFF334155);
+  static const Color shimmerBaseDark = Color(0xFF1C1C1E);
+  static const Color shimmerHighlightDark = Color(0xFF2C2C2E);
 }
