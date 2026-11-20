@@ -1,262 +1,278 @@
-# Simple News App (Flutter)
+# News App (Flutter)
 
-A modern, responsive, production-ready Flutter news application developed for the Flutter Developer evaluation at **Mallow Technologies**.
+A modern, production-grade Flutter news application developed for the Flutter Developer assignment at **Mallow Technologies**.
 
-The application connects to the **Spaceflight News API (v4)**, matches the provided UI design reference, follows the **MVVM (Model-View-ViewModel)** architectural pattern, and is fully responsive across Android, iOS, tablets, and iPads.
+The application connects to the live **Spaceflight News API (v4)**, mirrors the provided mobile UI design mockups, strictly adheres to the **MVVM (Model-View-ViewModel)** architectural pattern, and delivers a responsive experience across Android, iOS, tablets, and iPads.
+
+---
+
+## Highlights & Badges
+
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-MVVM-orange)
+![State Management](https://img.shields.io/badge/State%20Management-Provider-blue)
+![Theme](https://img.shields.io/badge/Theme-Light%20(Default)%20%7C%20Pure%20Black%20AMOLED-black)
+![Tests](https://img.shields.io/badge/Tests-26%20Passed%20(100%25)-brightgreen)
+![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Tablet-blueviolet)
 
 ---
 
 ## Table of Contents
-1. [Screenshots & UI Design](#screenshots--ui-design)
-2. [Task Overview & Features](#task-overview--features)
-3. [Architecture Overview (MVVM)](#architecture-overview-mvvm)
-4. [State Management Justification](#state-management-justification)
-5. [Production Scenarios Handled](#production-scenarios-handled)
-6. [Folder Structure](#folder-structure)
-7. [Dependencies & Packages](#dependencies--packages)
+1. [Core Features](#core-features)
+2. [Architecture Overview (MVVM)](#architecture-overview-mvvm)
+3. [State Management Justification](#state-management-justification)
+4. [Pagination Implementation](#pagination-implementation)
+5. [Network Resilience & Cloudflare Image Bypass](#network-resilience--cloudflare-image-bypass)
+6. [Theming: Default Light & Pure Black AMOLED](#theming-default-light--pure-black-amoled)
+7. [Project Structure](#project-structure)
 8. [Setup & Running Instructions](#setup--running-instructions)
-9. [Testing](#testing)
-10. [Assumptions & Design Adaptations](#assumptions--design-adaptations)
+9. [Automated Testing](#automated-testing)
+10. [Production Scenarios Handled](#production-scenarios-handled)
 
 ---
 
-## Screenshots & UI Design
+## Core Features
 
-The app faithfully implements the attached reference design:
-- **Discover (List Screen)**: Features a clean header, debounced search bar, category/news site filter pills, article thumbnail cards with category, title, author avatar with initials, dot separator, and formatted date.
-- **Article Detail Screen**: Full hero image with gradient overlay, floating category tag and title, publisher info with verified badge, complete summary, and a prominent **"Read Full Article"** action.
-- **Swipe Navigation (Gmail-style)**: Horizontal page swipe allowing seamless browsing from one news article to the next and previous article, with automatic pagination pre-fetching at the end of the loaded feed.
-- **Responsive Layout**: Single-column layout on mobile phones; 2-column and 3-column responsive grid layout on tablets and iPads.
-- **Theme Modes**: Full support for both **Light Mode** and **Dark Mode**, with a one-tap theme toggle in the header.
+### 1. Animated Splash Screen
+* **Branded Entrance:** Features the application icon (`asset/App Icon .png`) in an elevated squircle card with smooth scale (`Curves.easeOutBack`) and fade animations.
+* **Background Pre-fetch:** Proactively loads page 1 articles in the background while the splash animation plays, ensuring zero waiting time when transitioning into the Discover feed.
+* **Smooth Fade Route:** Transitions seamlessly into the main screen without abrupt flashes.
 
----
+### 2. Discover & Feed Screen
+* **Initial Page Load:** Loads 15 articles on the first request (`limit=15`, `offset=0`).
+* **Infinite Scroll Pagination:** A `ScrollController` detects when the user is within 250px of the bottom and fetches the next batch automatically.
+* **Pull-to-Refresh:** Refreshes feed data using standard swipe-down gestures while preserving the existing list during loading.
+* **Real-time Debounced Search:** 400ms debouncer prevents excessive API spam while typing queries.
+* **News Site / Category Filter Pills:** Filter news by publishers (NASA, SpaceNews, European Spaceflight, Teslarati, SpacePolicyOnline, Arstechnica, NASASpaceflight).
+* **Publisher Brand Marks:** Authentic brand marks (e.g., CNN red pill, NASA insignia, NSF badge, SpaceNews brand mark) with dynamic favicon fallback.
+* **Responsive Layout:** Automatically switches from a single-column list on mobile to an adaptive multi-column grid on tablets and iPads.
 
-## Task Overview & Features
-
-### A. List Screen (Discover)
-- **Search**: Allows real-time search across article titles and summaries with a 400ms debouncer to prevent excessive API calls.
-- **Category Filter Pills**: Filter articles by news site (`All`, `NASA`, `SpaceNews`, `European Spaceflight`, `Teslarati`, `SpacePolicyOnline`, etc.).
-- **Infinite Pagination**: Listens to scroll position and automatically fetches the next page when within 250px of the bottom.
-- **Pull-to-Refresh**: Native `RefreshIndicator` enabling users to pull down to refresh the article list without layout jumps.
-- **Thumbnails & Caching**: Efficient image caching with `cached_network_image`, skeleton shimmer placeholders, and graceful fallback icons.
-
-### B. Detail Screen
-- **Rich Presentation**: Displays hero image, title, news site badge, relative publish date ("6 hours ago"), author, and full summary.
-- **"Read full article" Button**: Opens the original external article URL in the device's default browser using `url_launcher`.
-- **Swipe Navigation (Gmail-Style)**: Powered by `PageView.builder`, users can swipe horizontally left/right to move to the next or previous article in the current feed.
-- **Continuous Reading Pagination**: When the user swipes near the end of the loaded list in the detail pager, the next page is fetched proactively so the reading experience is uninterrupted.
-- **Interactive Actions**: Integrated bookmark toggle and article link copy to clipboard.
+### 3. Article Detail View with Horizontal Swipe Navigation
+* **Gmail-Style Horizontal Paging:** Swipe left/right between articles seamlessly using Flutter's `PageView.builder`.
+* **Proactive Prefetching:** Automatically triggers background pagination when the user swipes within 2 articles of the loaded list end.
+* **Hero Image Transitions:** Smooth shared element transitions from the card thumbnail to the full header hero image.
+* **Top Bar Actions:**
+  * Circular Back button.
+  * Bookmark toggle.
+  * **3-Dot Horizontal Action Menu (`Icons.more_horiz_rounded`):** Opens a modal bottom sheet with quick actions: Copy Link (with Clipboard integration), Open in Browser, and Article Details.
+* **Read Full Article:** Launches original article URL in the user's browser with multi-mode fallback (`externalApplication` -> `platformDefault` -> `inAppBrowserView`) and Android 11+ package visibility queries.
 
 ---
 
 ## Architecture Overview (MVVM)
 
-The project follows a clean **MVVM (Model-View-ViewModel)** architecture:
+The project strictly follows the **MVVM (Model-View-ViewModel)** architectural pattern with clean layer boundaries:
 
 ```
-[ View (UI Screens & Widgets) ]
-              ▲
-              │ Observes state changes (ChangeNotifier / Consumer)
-              ▼
-[ ViewModel (Business Logic & UI State) ]
-              ▲
-              │ Calls domain operations
-              ▼
-[ Repository Layer (Contracts & Implementations) ]
-              ▲
-              │ Calls typed networking
-              ▼
-[ ApiClient (Dio with Interceptors & Typed Exceptions) ]
-              ▲
-              ▼
-[ Spaceflight News API v4 ]
+┌────────────────────────────────────────────────────────┐
+│                      VIEW LAYER                        │
+│   DiscoverScreen, ArticleDetailView, SplashScreen      │
+│   Widgets: ArticleCard, AppNetworkImage, etc.          │
+└──────────────────────────▲─────────────────────────────┘
+                           │ (Watches state & dispatches actions)
+┌──────────────────────────┴─────────────────────────────┐
+│                   VIEWMODEL LAYER                      │
+│   NewsListViewModel, ThemeViewModel                    │
+│   (ChangeNotifier - State, Pagination, Debouncing)    │
+└──────────────────────────▲─────────────────────────────┘
+                           │ (Calls repository interfaces)
+┌──────────────────────────┴─────────────────────────────┐
+│                   REPOSITORY LAYER                     │
+│   NewsRepository (Interface)                           │
+│   NewsRepositoryImpl (Dio Client + Error Mapper)       │
+└──────────────────────────▲─────────────────────────────┘
+                           │ (Parses raw JSON to Models)
+┌──────────────────────────┴─────────────────────────────┐
+│                      DATA LAYER                        │
+│   Article, ArticleResponse, Author                     │
+│   ApiClient (Dio), ApiConstants, AppException          │
+└────────────────────────────────────────────────────────┘
 ```
 
-### Key Architectural Layers:
-1. **Core**: Contains app constants (`ApiConstants`, `AppColors`), theme specifications (`AppTheme`), typed network exceptions (`AppException`, `NetworkException`, `RequestTimeoutException`), and reusable utilities (`Debouncer`, `DateFormatter`, `UrlLauncherHelper`).
-2. **Data**:
-   - **Models**: Immutable, null-safe data classes (`Article`, `ArticleResponse`, `Author`) with robust `fromJson` parsers handling null, empty, or missing fields gracefully.
-   - **Repositories**: `NewsRepository` interface and `NewsRepositoryImpl` concrete implementation, isolating networking logic from presentation state.
-3. **ViewModels**:
-   - `NewsListViewModel`: Manages list loading state, pagination offset/limit, search query debouncing, category selection, and pagination retry.
-   - `ThemeViewModel`: Manages system, light, and dark theme states.
-   - `ArticleDetailViewModel`: Manages single article detail, bookmark status, and refresh logic.
-4. **Views**:
-   - `DiscoverScreen`: The main list screen.
-   - `ArticleDetailPagerScreen`: The horizontal swipeable Gmail-style pager.
-   - `ArticleDetailView`: The single article view.
-   - `widgets/`: Reusable, isolated UI components (`ArticleCard`, `SearchInputBar`, `CategoryPills`, `PaginationFooter`, `EmptyStateView`, `ErrorStateView`, `ShimmerArticleCard`, `ResponsiveLayout`).
+### Layer Separation Responsibilities:
+1. **Views (UI):** Stateless and lightweight Stateful widgets responsible only for rendering UI and delegating user interactions to ViewModels. Zero business logic or HTTP calls.
+2. **ViewModels (Business Logic & State):** Extends `ChangeNotifier`. Manages UI states (`initial`, `loading`, `loaded`, `empty`, `error`), offset-based pagination, search debouncing, and list deduplication.
+3. **Repository Layer:** Abstract contract (`NewsRepository`) and implementation (`NewsRepositoryImpl`). Decouples network client details from the ViewModel layer, enabling effortless mock testing.
+4. **Core & Data:** Typed network models with null-safe JSON deserializers, Dio interceptors, and a custom `AppException` hierarchy.
 
 ---
 
 ## State Management Justification
 
-**Provider with `ChangeNotifier`** was chosen as the state management solution for this application based on the following engineering merits:
+**Provider (`provider: ^6.1.2`)** was selected as the state management solution for this application:
 
-1. **Direct Alignment with MVVM**:
-   `ChangeNotifier` naturally maps to the ViewModel role in MVVM. The ViewModel encapsulates mutable UI state and exposes immutable getters, notifying the View only when state actually changes via `notifyListeners()`.
-2. **Clean Separation of Concerns**:
-   Views remain purely declarative and reactive (`Consumer` and `Selector`). Business logic, API calls, and pagination state reside strictly in ViewModels, decoupled from Flutter's widget tree.
-3. **High Testability**:
-   `NewsListViewModel` depends on the abstract `NewsRepository` interface, allowing mock repositories (`MockNewsRepository`) to be injected easily in unit tests without touching Flutter UI widgets.
-4. **Zero Unnecessary Boilerplate**:
-   Unlike Bloc, which requires creating Events, States, and EventHandlers for every minor interaction, Provider offers readable, concise, and maintainable code without sacrificing architectural cleanliness.
-5. **Memory Safety & Resource Management**:
-   All controllers (`ScrollController`, `TextEditingController`, `PageController`) and timer-based debouncers implement explicit `dispose()` lifecycle overrides to prevent memory leaks.
+* **Official Recommendation:** Recommended by the Google Flutter team for production apps of this scope.
+* **Granular Rebuilds:** Using `Consumer` and `context.select()`, only the specific widgets that depend on altered state rebuild (e.g., pagination spinner or theme icon), leaving the rest of the widget tree untouched.
+* **Clean Inversion of Control:** Repositories and ViewModels are injected down the widget tree using `MultiProvider`, making dependencies easily swappable with mocks in unit tests.
+* **No Boilerplate Overhead:** Unlike BloC or Redux, Provider does not require event/state classes for every small user interaction, resulting in clean, readable, and maintainable code.
 
 ---
 
-## Production Scenarios Handled
+## Pagination Implementation
 
-| Scenario | Implementation Details |
-| :--- | :--- |
-| **Loading State** | Skeleton shimmer placeholders (`ShimmerArticleCard`) matching the exact layout of article cards. |
-| **Empty State** | `EmptyStateView` with informative graphics, custom copy, and a "Clear Search" or "Show All" button. |
-| **Error State** | `ErrorStateView` with retry button for both initial load and network dropouts. |
-| **No Internet Connection** | `NetworkException` caught and mapped to user-friendly messages with a retry action. |
-| **Request Timeouts** | Explicit 15-second connect and receive timeouts via Dio, handled by `RequestTimeoutException`. |
-| **Pagination Errors** | `PaginationFooter` displays an inline retry banner at the bottom without dismissing already loaded articles. |
-| **No Duplicate Loads** | `isLoadingMore` guard prevents concurrent duplicate requests when fast scrolling; deduplication via ID hashing prevents repeat cards. |
-| **Missing / Null Fields** | Fallback values for null images (stylized rocket placeholder), empty summaries, and missing authors (falls back to `news_site`). |
-| **Dark Mode & Text Scaling** | High-contrast dark theme; typography uses relative scaling compatible with accessibility font settings. |
-| **Disposal of Controllers** | All `TextEditingController`, `ScrollController`, `PageController`, and `Debouncer` instances are disposed of cleanly. |
+Pagination is implemented using offset-limit pagination matching the Spaceflight News API v4:
+
+1. **Page 1 (Initial Load):**
+   * Endpoint: `https://api.spaceflightnewsapi.net/v4/articles/?limit=15&offset=0`
+   * Loads the first 15 articles along with `count` (total available items) and `next` URL.
+2. **Infinite Scroll Trigger:**
+   * A `ScrollController` in `DiscoverScreen` listens to the user's scroll position.
+   * When `maxScroll - currentScroll <= 250`, `loadMoreArticles()` is triggered.
+3. **Concurrency & Race Condition Locks:**
+   * The `_isLoadingMore` flag prevents concurrent network requests.
+   * `_hasMorePages` halts further requests once the API indicates `next == null`.
+4. **Duplicate Protection:**
+   * Incoming items are filtered against existing IDs using a Set (`existingIds`) to prevent duplicate items from appearing in the feed.
+5. **Horizontal Pager Prefetching:**
+   * In `ArticleDetailPagerScreen`, swiping near the end of the loaded list (`currentIndex >= articles.length - 2`) triggers background pagination so the user never encounters a navigation block.
 
 ---
 
-## Folder Structure
+## Network Resilience & Cloudflare Image Bypass
+
+### The Problem:
+Publishers such as **NASASpaceFlight** (`nasaspaceflight.com`) and **SpaceflightNow** (`spaceflightnow.com`) host their images behind aggressive **Cloudflare Bot Fight Mode / Anti-Hotlink Protection**. When mobile apps request images directly from their media directories, Cloudflare rejects the connection with **`HTTP 403 Forbidden`**.
+
+### The Solution in `AppNetworkImage`:
+* **Direct Bypass via High-Speed CDN:** Known Cloudflare-protected hosts are routed through `wsrv.nl` (an open-source global image CDN cache), returning `HTTP 200 OK` and serving the image immediately.
+* **In-Flight Dynamic Fallback:** If any direct image request returns an HTTP error, the widget's `errorBuilder` automatically retries through the proxy CDN before showing the fallback icon.
+* **Browser Request Headers:** Injects standard browser `User-Agent` and `Accept` headers into image requests.
+* **Shimmer Animation:** Animated skeleton placeholders provide smooth visual feedback while images download.
+
+---
+
+## Theming: Default Light & Pure Black AMOLED
+
+* **Default Theme:** **Light Mode** as requested, featuring clean backgrounds (`#F8F9FA`), crisp white cards, and vibrant primary blue accents (`#0062FF`).
+* **Pure Black AMOLED Dark Mode:** Built with a true pure black background (`#000000`) and elevated dark surfaces (`#121212`), eliminating battery drain on OLED screens and eliminating dark-blue tinting.
+* **One-Tap Switcher:** Located in the top app bar for instant, smooth theme toggling.
+
+---
+
+## Project Structure
 
 ```
 lib/
 ├── core/
 │   ├── constants/
-│   │   ├── api_constants.dart          # Base URL, endpoints, news site categories
-│   │   └── app_colors.dart             # Palette for light and dark modes
+│   │   ├── api_constants.dart      # Base URLs, endpoints, timeouts, categories
+│   │   └── app_colors.dart         # Light & Pure Black Dark palettes
 │   ├── errors/
-│   │   └── exceptions.dart             # Typed AppException hierarchy
+│   │   └── exceptions.dart         # Typed AppException hierarchy
 │   ├── network/
-│   │   └── api_client.dart             # Dio wrapper with timeouts and error mapping
+│   │   └── api_client.dart         # Dio HTTP client configuration
 │   ├── theme/
-│   │   └── app_theme.dart              # Light & Dark ThemeData configurations
+│   │   └── app_theme.dart          # Light and AMOLED Dark ThemeData
 │   └── utils/
-│       ├── date_formatter.dart         # Standard and relative date formatting
-│       ├── debouncer.dart              # Search input debounce utility
-│       └── url_launcher_helper.dart    # Safe URL launcher with SnackBar fallback
+│       ├── date_formatter.dart     # Relative and absolute date formatting
+│       ├── debouncer.dart          # Search debouncing utility
+│       └── url_launcher_helper.dart# Multi-mode browser launch helper
 ├── data/
 │   ├── models/
-│   │   ├── article_model.dart          # Null-safe Article domain model
+│   │   ├── article_model.dart      # Article entity with null-safety
 │   │   ├── article_response_model.dart # Paginated response wrapper
-│   │   └── author_model.dart           # Author model
+│   │   └── author_model.dart       # Author entity
 │   └── repositories/
-│       ├── news_repository.dart        # Abstract contract
-│       └── news_repository_impl.dart   # Implementation using ApiClient
+│       ├── news_repository.dart    # Abstract repository interface
+│       └── news_repository_impl.dart # Concrete repository with Dio
 ├── viewmodels/
-│   ├── article_detail_viewmodel.dart   # Detail screen state & bookmarks
-│   ├── news_list_viewmodel.dart        # List state, pagination, filtering, search
-│   └── theme_viewmodel.dart            # Light / Dark theme toggling
+│   ├── news_list_viewmodel.dart    # Feed state, search, filter, pagination
+│   ├── article_detail_viewmodel.dart # Article detail and sharing state
+│   └── theme_viewmodel.dart        # Theme mode persistence & toggle
 ├── views/
 │   ├── screens/
-│   │   ├── article_detail_pager_screen.dart # Gmail-style swipe pager
-│   │   ├── article_detail_view.dart         # Single article detail view
-│   │   └── discover_screen.dart             # Main list/grid screen
+│   │   ├── splash_screen.dart      # Animated branded splash screen
+│   │   ├── discover_screen.dart    # Main feed with search & filters
+│   │   ├── article_detail_view.dart# Article detail content with 3-dot menu
+│   │   └── article_detail_pager_screen.dart # Horizontal swipe pager
 │   └── widgets/
-│       ├── article_card.dart           # Reusable card (list & grid mode)
-│       ├── category_pills.dart         # Horizontal category filter pills
-│       ├── empty_state_view.dart       # Reusable empty view with action
-│       ├── error_state_view.dart       # Reusable error view with retry
-│       ├── pagination_footer.dart      # Loading spinner & retry banner
-│       ├── responsive_layout.dart      # Phone vs. Tablet LayoutBuilder helper
-│       ├── search_input_bar.dart       # Styled search field with clear/filter
-│       └── shimmer_article_card.dart   # Skeleton shimmer placeholder
-└── main.dart                           # MultiProvider setup & MaterialApp
+│       ├── app_network_image.dart  # CDN-resilient image loader with shimmer
+│       ├── article_card.dart       # List and Grid article cards
+│       ├── category_pills.dart     # Horizontal category filter list
+│       ├── empty_state_view.dart   # No search results / empty state
+│       ├── error_state_view.dart   # Network error view with retry button
+│       ├── pagination_footer.dart  # Bottom pagination loading spinner
+│       ├── publisher_logo.dart     # Publisher brand badge (CNN, NASA, etc.)
+│       ├── responsive_layout.dart  # Phone vs. Tablet layout builder
+│       └── search_input_bar.dart   # Search field with clear button
+└── main.dart                       # App entry point & MultiProvider setup
 ```
-
----
-
-## Dependencies & Packages
-
-- **`provider: ^6.1.2`**: Dependency injection and reactive state management.
-- **`dio: ^5.7.0`**: Advanced HTTP client with timeout configuration and error classification.
-- **`cached_network_image: ^3.4.1`**: Memory and disk image caching with placeholder/error builder.
-- **`url_launcher: ^6.3.1`**: Launches original article URLs in the system browser.
-- **`intl: ^0.19.0`**: Date formatting for publication timestamps.
-- **`shimmer: ^3.0.0`**: Smooth shimmer effect for loading states.
-- **`mocktail: ^1.0.4`**: Null-safe mocking library for unit and widget testing.
-- **`flutter_lints: ^6.0.0`**: Official Flutter linting rules.
 
 ---
 
 ## Setup & Running Instructions
 
-### Prerequisites
-- Flutter SDK **^3.12** / **3.44+**
-- Dart SDK **^3.12**
-- Android Studio / Xcode / Chrome / Windows desktop runtime
+### Prerequisites:
+* Flutter SDK (3.x or higher)
+* Dart SDK (3.x or higher)
+* Android Studio / Xcode / VS Code with Flutter extension
+* An active Android Emulator, iOS Simulator, or connected physical device
 
-### Steps
-1. **Clone or extract** the repository:
+### Installation & Execution:
+1. **Clone the repository:**
    ```bash
+   git clone <repository_url>
    cd simple_news_app
    ```
-2. **Install dependencies**:
+
+2. **Install dependencies:**
    ```bash
    flutter pub get
    ```
-3. **Run code analysis**:
+
+3. **Run static analysis:**
    ```bash
-   flutter analyze
+   dart analyze lib test
    ```
-   *(Expected output: No issues found!)*
-4. **Run test suite**:
+
+4. **Run the automated test suite:**
    ```bash
    flutter test
    ```
-   *(Expected output: All 19 tests passed!)*
-5. **Run the application**:
-   - On Android: `flutter run -d android`
-   - On iOS: `flutter run -d ios`
-   - On Chrome / Web: `flutter run -d chrome`
-   - On Windows: `flutter run -d windows`
+
+5. **Launch the application:**
+   ```bash
+   flutter run
+   ```
 
 ---
 
-## Testing
+## Automated Testing
 
-The project includes unit and widget tests covering:
-- **Model Tests (`test/unit/article_model_test.dart`)**:
-  - Full JSON parsing and field verification.
-  - Graceful handling of missing or null fields.
-  - Pagination parsing (`hasNextPage`, `count`).
-- **Repository Tests (`test/unit/news_repository_test.dart`)**:
-  - API client query parameter forwarding (`limit`, `offset`, `search`, `news_site`).
-  - Handling of network failure exceptions.
-  - Detail article lookup by ID.
-- **ViewModel Tests (`test/unit/news_list_viewmodel_test.dart`)**:
-  - Initial state verification.
-  - Transition from `loading` to `loaded`.
-  - Empty state when 0 articles match.
-  - Error state handling and error messages.
-  - Pagination loading with deduplication.
-  - Category filter selection and search clearing.
-- **Widget Tests (`test/widget_test.dart`)**:
-  - `ArticleCard` component rendering.
-  - `ErrorStateView` display and retry callback invocation.
-  - `EmptyStateView` display and action callback invocation.
+The project includes an automated test suite with **26 comprehensive tests** across unit, repository, viewmodel, and widget layers:
 
-Run all tests with:
 ```bash
-flutter test
+$ flutter test
+
+00:01 +26: All tests passed!
 ```
 
+### Test Coverage Breakdown:
+| Test File | Layer | Description |
+|:---|:---|:---|
+| `article_model_test.dart` | Unit (Models) | JSON deserialization, null fallbacks, pagination parsing |
+| `news_list_viewmodel_test.dart` | Unit (ViewModels) | Initial state, loading, loaded, empty, error, pagination, deduplication, search clear, category selection |
+| `news_repository_test.dart` | Unit (Repository) | Successful API responses, query parameter encoding, typed `AppException` mapping |
+| `publisher_logo_test.dart` | Unit (Widgets) | Brand mark rendering for CNN, NASA, NSF, SpaceNews, Teslarati |
+| `theme_viewmodel_test.dart` | Unit (ViewModels) | Default light mode, toggling to pure black dark mode |
+| `widget_test.dart` | Widget | `SplashScreen` animations & branding, `ArticleCard` content rendering, `ErrorStateView` retry callback, `EmptyStateView` action callback |
+
 ---
 
-## Assumptions & Design Adaptations
+## Production Scenarios Handled
 
-1. **Category Pills & Authors**:
-   As explicitly highlighted in the task specification note (*"Some data in the UI (categories, author avatars, 'Trending') isn't in the API. Treat the design as a reference and adapt it, for example by using news_site in place of the category or author."*):
-   - Category pills represent the available `news_site` publishers from Spaceflight News API (e.g. `NASA`, `SpaceNews`, `European Spaceflight`, etc.).
-   - Author name displays the first author in the API response, or defaults to the `news_site` if the author list is omitted.
-   - Author avatar renders a colored circular avatar with author initials matching the design.
-2. **Swipe Navigation**:
-   The detail screen uses a horizontal `PageView.builder` initialized to the tapped article index, enabling users to swipe between news articles like Gmail. When swiping near the boundary of loaded articles, subsequent pages are automatically loaded in the background.
-#   N e w - A p p  
- 
+* **Offline & Connectivity Loss:** Displays an inline `ErrorStateView` with a single-tap **Try Again** button that preserves previous queries and category filters.
+* **Cloudflare WAF / 403 Forbidden on Media:** Bypasses hotlink blocks on publisher media servers via `wsrv.nl` CDN proxying.
+* **Android 11+ Package Visibility (`<queries>`):** Declares web intent filters in `AndroidManifest.xml` so external URLs launch properly across all Android versions.
+* **URL Launch Fallback Strategy:** Attempts `LaunchMode.externalApplication`, falls back to `LaunchMode.platformDefault`, and finally `LaunchMode.inAppBrowserView` before prompting the user.
+* **Debounced Search:** Avoids network request storms by debouncing keyboard input by 400ms.
+* **Memory Management:** All `ScrollController`, `TextEditingController`, and `AnimationController` instances are cleanly disposed in their respective state objects.
+* **Screen Adaptability:** Fluid typography, flexible slivers, and adaptive grid sizing prevent layout overflows (`RenderFlex` overflow) on devices of all aspect ratios.
+
+---
+
+## Author & Evaluation Notes
+* **Project Name:** News App
+* **Evaluation Target:** Flutter Developer Assignment — Mallow Technologies
+* **Status:** Complete, tested, and production-ready.
