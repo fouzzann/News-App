@@ -5,7 +5,7 @@ import 'data/repositories/news_repository.dart';
 import 'data/repositories/news_repository_impl.dart';
 import 'viewmodels/news_list_viewmodel.dart';
 import 'viewmodels/theme_viewmodel.dart';
-import 'views/screens/discover_screen.dart';
+import 'views/screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,12 +37,12 @@ class SimpleNewsApp extends StatelessWidget {
       child: Consumer<ThemeViewModel>(
         builder: (context, themeVm, _) {
           return MaterialApp(
-            title: 'Simple News App',
+            title: 'News App',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeVm.themeMode,
-            home: const DiscoverScreen(),
+            home: const SplashScreen(),
           );
         },
       ),

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_news_app/data/models/article_model.dart';
+import 'package:simple_news_app/data/models/article_response_model.dart';
 import 'package:simple_news_app/data/repositories/news_repository.dart';
+import 'package:simple_news_app/viewmodels/news_list_viewmodel.dart';
+import 'package:simple_news_app/viewmodels/theme_viewmodel.dart';
+import 'package:simple_news_app/views/screens/splash_screen.dart';
 import 'package:simple_news_app/views/widgets/article_card.dart';
 import 'package:simple_news_app/views/widgets/empty_state_view.dart';
 import 'package:simple_news_app/views/widgets/error_state_view.dart';
@@ -19,6 +24,47 @@ void main() {
       summary: 'Data received after successful thruster test.',
       publishedAt: null,
     );
+
+    testWidgets('SplashScreen renders app name, subtitle, and version',
+        (WidgetTester tester) async {
+      final mockRepo = MockNewsRepository();
+      when(() => mockRepo.getArticles(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+            search: any(named: 'search'),
+            newsSite: any(named: 'newsSite'),
+          )).thenAnswer((_) async => const ArticleResponse(
+            count: 0,
+            results: [],
+          ));
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ThemeViewModel>(
+              create: (_) => ThemeViewModel(),
+            ),
+            Provider<NewsRepository>.value(value: mockRepo),
+            ChangeNotifierProvider<NewsListViewModel>(
+              create: (_) => NewsListViewModel(repository: mockRepo),
+            ),
+          ],
+          child: const MaterialApp(
+            home: SplashScreen(),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.text('News App'), findsOneWidget);
+      expect(find.text('Stay informed with the latest updates'), findsOneWidget);
+      expect(find.text('v1.0.0'), findsOneWidget);
+
+      // Advance time to complete splash delay and navigation transition
+      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pump(const Duration(milliseconds: 700));
+    });
 
     testWidgets('ArticleCard renders title, news site, and author correctly',
         (WidgetTester tester) async {
